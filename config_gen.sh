@@ -63,7 +63,7 @@ done
 # Generates SSH prompt to auth each key
 
 for identity in "${!ssh_info[@]}"; do
-  ssh -vi ${ssh_info[$identity]} $identity
+  ssh-copy-id -i ${ssh_info[$identity]} $identity
 done
 
 # Generates $HOME/.ssh/config entries for each user
