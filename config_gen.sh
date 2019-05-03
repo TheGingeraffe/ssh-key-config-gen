@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Array which stores hosts and users for re-use
+# Arrays and variables
 
 declare -A host_info
 
-# Confirmation function
+digit=1
+
+# Functions
 
 confirm(){
   read -p "Continue (y/n)?" choice
@@ -15,12 +17,21 @@ confirm(){
   esac
 }
 
-# Sets the stage
+get_host(){
+  read -ep "Please enter hostname #$digit: " HOST;
+}
 
-digit=1
+get_users(){
+  read -ep "Please enter all users for hostname #$digit delimited by spaces: " USERS;
+}
+ 
 
-read -ep "Please enter hostname #$digit: " HOST;
-read -ep "Please enter all users for hostname #$digit delimited by spaces: " USER;
+# Captures host and user information, then associates them in the host_info array
+
+get_host
+get_users
+
+host_info[$HOST]+="$USERS"
 
 while true; do
   answer=$(confirm)
@@ -28,13 +39,19 @@ while true; do
     break
   elif [[ $answer == "yes" ]]; then
     digit=$((digit+1))
-    read -ep "Please enter hostname #$digit: " HOST;
-    read -ep "Please enter all users for hostname #$digit delimited by spaces: " USER;
+    get_host
+    get_users
+    host_info[$HOST]+="$USERS"
     continue
   else
     echo "Input not understood, please use [Yy/Nn]"
     continue
   fi
+done
+
+# Test that prints array
+for i in "${!host_info[@]}"; do
+ echo "${i} ${host_info[$i]}"
 done
 
 
@@ -47,3 +64,8 @@ done
 
 
 # TODO Generate ~/.ssh/config entries for each host
+
+# Test that prints array
+#for i in "${!host_info[@]}"; do
+# echo "${i} ${host_info[$i]}"
+#done
