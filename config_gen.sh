@@ -3,13 +3,14 @@
 # Arrays and variables
 
 declare -A host_info
+declare -A ssh_info
 
 digit=1
 
 # Functions
 
 confirm(){
-  read -ep "Continue (y/n)? " choice
+  read -ep "Continue adding hosts? (y/n) " choice
   case "$choice" in
     y|Y ) echo "yes";;
     n|N ) echo "no";;
@@ -48,24 +49,32 @@ while true; do
   fi
 done
 
-# Test that prints array
-
-#for i in "${!host_info[@]}"; do
-# echo "${i} ${host_info[$i]}"
-#done
-
-
 # TODO Generate keys for all domains given (from file OR stdin)
 
 for host in "${!host_info[@]}"; do
   for user in $(echo "${host_info[$host]}"); do
     read -ep "Name of key for $user@$host? " KEY;
-    ssh-keygen -t rsa -N "" -f $HOME/.ssh/$KEY.key -q
+    keypath="$HOME/.ssh/$KEY.key"
+    ssh_info[$user@$host]+="$keypath"
+    ssh-keygen -t rsa -N "" -f $keypath -q
   done
 done
 
 # TODO Generate SSH prompt to auth each key
 
-
+for identity in "${!ssh_info[@]}"; do
+  ssh -vi ${ssh_info[$identity]} $identity
+done
 
 # TODO Generate ~/.ssh/config entries for each host
+
+for identity in "${!ssh_info[@]}"; do
+  user=${identity%@*}
+  host=${identity#*@}
+  read -ep "Name of alias for $identity? " ALIAS;
+  echo -e "\nHost $ALIAS
+  Hostname $host
+  User $user
+  IdentityFile ${ssh_info[$identity]}"\
+  >> $HOME/.ssh/config
+done
