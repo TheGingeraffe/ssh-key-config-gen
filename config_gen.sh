@@ -49,7 +49,7 @@ while true; do
   fi
 done
 
-# TODO Generate keys for all domains given (from file OR stdin)
+# Generates keys for all domains given
 
 for host in "${!host_info[@]}"; do
   for user in $(echo "${host_info[$host]}"); do
@@ -60,13 +60,13 @@ for host in "${!host_info[@]}"; do
   done
 done
 
-# TODO Generate SSH prompt to auth each key
+# Generates SSH prompt to auth each key
 
 for identity in "${!ssh_info[@]}"; do
   ssh -vi ${ssh_info[$identity]} $identity
 done
 
-# TODO Generate ~/.ssh/config entries for each host
+# Generates $HOME/.ssh/config entries for each user
 
 for identity in "${!ssh_info[@]}"; do
   user=${identity%@*}
